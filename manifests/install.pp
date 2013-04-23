@@ -32,9 +32,4 @@ class git::install(
     package{$git::params::gui_package: ensure => absent}
   }
 
-  $root_name    = "root on ${::fqdn}"
-  $root_email   = "root@${::fqdn}"
-
-  git::user{'root':}
-
 }
