@@ -40,26 +40,6 @@ Otherwise using the parametrs:
 * *svn* if true the git-svn package will also be installed
 * *gui* if true the git-gui package will also be installed
 
-## To set up git for a user
-
-This basically sets the users name and email as git global variables, and should allow them to just use git. The username should be a valid user account.
-
-With default settings just use:
-
-    git::user{'username':}
-
-Otherwise using parameters:
-
-    git::user{'username':
-     user_name  => 'Some User',
-     user_email => 'someuser@example.org',
-    }
-
-### Parameters
-
-* *user_name* sets the user's name to the specified string, and not the default of `${name} on ${fqdn}`, where fqdn is the fully qualified domain name as discovered by facter.
-* *user_email* sets the user's email address to the specified string, and not the default of `${name}@${fqdn}`, where fqdn is the fully qualified domain name as discovered by facter.
-
 ## To specify a git repository
 
 This will clone a git repository from a vaild git URI to a specified path on the target server. It is **strongly** recommended that *read-only* git URIs are used. If no source is given, the target path will simply be initialised as a git repository.
