@@ -70,6 +70,15 @@ define git::repo(
     timeout => 600,
   }
 
+  if $update {
+    exec {"git_${name}_pull":
+      user    => $owner,
+      cwd     => $path,
+      command => "${git::params::bin} reset --hard HEAD && ${git::params::bin} pull origin ${branch}",
+      require => Exec["git_repo_${name}"],
+    }
+  }
+
   # I think tagging works, but it's possible setting a tag and a branch will just fight.
   # It should change branches too...
   if $git_tag {
@@ -86,16 +95,6 @@ define git::repo(
       cwd     => $path,
       command => "${git::params::bin} checkout ${branch}",
       unless  => "${git::params::bin} branch|/bin/grep -P '\\* ${branch}'",
-      require => Exec["git_repo_${name}"],
-    }
-  }
-
-  if $update {
-    exec {"git_${name}_pull":
-      user    => $owner,
-      cwd     => $path,
-      command => "${git::params::bin} reset --hard HEAD && ${git::params::bin} pull origin ${branch}",
-      unless  => "${git::params::bin} diff origin --no-color --exit-code",
       require => Exec["git_repo_${name}"],
     }
   }
