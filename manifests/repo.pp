@@ -88,14 +88,16 @@ define git::repo(
       unless  => "${git::params::bin} branch|/bin/grep -P '\\* ${branch}'",
       require => Exec["git_repo_${name}"],
     }
-    if $update {
-      exec {"git_${name}_pull":
-        user    => $owner,
-        cwd     => $path,
-        command => "${git::params::bin} reset --hard HEAD && ${git::params::bin} pull origin ${branch}",
-        unless  => "${git::params::bin} diff origin --no-color --exit-code",
-        require => Exec["git_repo_${name}"],
-      }
+  }
+
+  if $update {
+    exec {"git_${name}_pull":
+      user    => $owner,
+      cwd     => $path,
+      command => "${git::params::bin} reset --hard HEAD && ${git::params::bin} pull origin ${branch}",
+      unless  => "${git::params::bin} diff origin --no-color --exit-code",
+      require => Exec["git_repo_${name}"],
     }
   }
+
 }
