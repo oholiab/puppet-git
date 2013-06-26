@@ -1,5 +1,5 @@
 name 'jproyo-git'
-version '0.0.3'
+version '0.0.4'
 source 'https://github.com/mxhero/puppet-modules/tree/master/modules/git'
 author 'Juan Pablo Royo'
 license 'Apache 2.0'
