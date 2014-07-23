@@ -15,7 +15,7 @@ class git::install(
   $svn=$git::svn,
 ){
 
-  package{$git::package: ensure => installed}
+  package{$git::git_package: ensure => installed}
 
   if $svn {
     package{$git::svn_package: ensure => installed}
