@@ -24,7 +24,9 @@ define git::repo(
   $owner    = 'root',
   $group    = 'root',
   $update   = false,
-  $bare     = false
+  $bare     = false,
+  $submodule = false,
+  $submodule_update = false,
 ){
 
   require git
@@ -46,6 +48,9 @@ define git::repo(
       $init_cmd = "${git::bin} init ${path}"
     }
   }
+  
+  $submodule_init_cmd = "${git::bin} submodule init"
+  $submodule_update_cmd = "${git::bin} submodule update"
 
   $creates = $bare ? {
     true    => "${path}/objects",
@@ -58,16 +63,29 @@ define git::repo(
       ensure  => directory,
       owner => $owner,
       recurse => true,
+    } ->
+    exec {"git_repo_${name}":
+      command => $init_cmd,
+      user    => $owner,
+      creates => $creates,
+      require => Package[$git::git_package],
+      timeout => 600,
+    }
+    if $submodule {
+      Exec["git_repo_${name}"] ->
+      exec {"submodule_${name}_init":
+        user    => $owner,
+        cwd     => $path,
+        command => $submodule_init_cmd,
+      } ~>
+      exec {"submodule_${name}_first_update":
+        user    => $owner,
+        cwd     => $path,
+        command => $submodule_update_cmd,
+      }
     }
   }
 
-  exec {"git_repo_${name}":
-    command => $init_cmd,
-    user    => $owner,
-    creates => $creates,
-    require => Package[$git::git_package],
-    timeout => 600,
-  }
 
   if $update {
     exec {"git_${name}_pull":
@@ -77,6 +95,18 @@ define git::repo(
       require => Exec["git_repo_${name}"],
     }
   }
+
+  if $submodule_update {
+    if ! defined(Exec["submodule_${name}_first_update"]) {
+      exec {"submodule_${name}_first_update":
+        user    => $owner,
+        cwd     => $path,
+        command => $submodule_update_cmd,
+      }
+    }
+  }
+
+
 
   # I think tagging works, but it's possible setting a tag and a branch will just fight.
   # It should change branches too...
