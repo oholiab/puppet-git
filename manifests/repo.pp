@@ -98,7 +98,7 @@ define git::repo(
   }
 
   if $submodule_update {
-    exec {"submodule_${name}_first_update":
+    exec {"submodule_${name}_update":
       user    => $owner,
       cwd     => $path,
       command => $submodule_update_cmd,
