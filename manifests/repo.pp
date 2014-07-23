@@ -58,31 +58,32 @@ define git::repo(
   }
 
 
-  if ! defined(File[$path]){
-    file{$path:
-      ensure  => directory,
-      owner => $owner,
-      recurse => true,
-    } ->
-    exec {"git_repo_${name}":
-      command => $init_cmd,
+  file{$path:
+    ensure  => directory,
+    owner => $owner,
+    recurse => true,
+  } ~>
+  exec {"git_repo_${name}":
+    command     => $init_cmd,
+    user        => $owner,
+    creates     => $creates,
+    require     => Package[$git::git_package],
+    timeout     => 600,
+    refreshonly => true,
+  }
+  if $submodule {
+    Exec["git_repo_${name}"] ~>
+    exec {"submodule_${name}_init":
       user    => $owner,
-      creates => $creates,
-      require => Package[$git::git_package],
-      timeout => 600,
-    }
-    if $submodule {
-      Exec["git_repo_${name}"] ->
-      exec {"submodule_${name}_init":
-        user    => $owner,
-        cwd     => $path,
-        command => $submodule_init_cmd,
-      } ~>
-      exec {"submodule_${name}_first_update":
-        user    => $owner,
-        cwd     => $path,
-        command => $submodule_update_cmd,
-      }
+      cwd     => $path,
+      command => $submodule_init_cmd,
+      refreshonly => true,
+    } ~>
+    exec {"submodule_${name}_first_update":
+      user    => $owner,
+      cwd     => $path,
+      command => $submodule_update_cmd,
+      refreshonly => true,
     }
   }
 
