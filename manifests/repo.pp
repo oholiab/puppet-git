@@ -48,7 +48,7 @@ define git::repo(
       $init_cmd = "${git::bin} init ${path}"
     }
   }
-  
+
   $submodule_init_cmd = "${git::bin} submodule init"
   $submodule_update_cmd = "${git::bin} submodule update"
 
@@ -80,9 +80,9 @@ define git::repo(
       refreshonly => true,
     } ~>
     exec {"submodule_${name}_first_update":
-      user    => $owner,
-      cwd     => $path,
-      command => $submodule_update_cmd,
+      user        => $owner,
+      cwd         => $path,
+      command     => $submodule_update_cmd,
       refreshonly => true,
     }
   }
@@ -98,12 +98,11 @@ define git::repo(
   }
 
   if $submodule_update {
-    if ! defined(Exec["submodule_${name}_first_update"]) {
-      exec {"submodule_${name}_first_update":
-        user    => $owner,
-        cwd     => $path,
-        command => $submodule_update_cmd,
-      }
+    exec {"submodule_${name}_first_update":
+      user    => $owner,
+      cwd     => $path,
+      command => $submodule_update_cmd,
+      require => Exec["submodule_${name}_init"],
     }
   }
 
