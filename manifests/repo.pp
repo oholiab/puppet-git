@@ -28,7 +28,6 @@ define git::repo(
 ){
 
   require git
-  require git::params
 
   validate_bool($bare, $update)
 
@@ -39,12 +38,12 @@ define git::repo(
   }
 
   if $source {
-    $init_cmd = "${git::params::bin} clone -b ${real_branch} ${source} ${path} --recursive"
+    $init_cmd = "${git::bin} clone -b ${real_branch} ${source} ${path} --recursive"
   } else {
     if $bare {
-      $init_cmd = "${git::params::bin} init --bare ${path}"
+      $init_cmd = "${git::bin} init --bare ${path}"
     } else {
-      $init_cmd = "${git::params::bin} init ${path}"
+      $init_cmd = "${git::bin} init ${path}"
     }
   }
 
@@ -66,7 +65,7 @@ define git::repo(
     command => $init_cmd,
     user    => $owner,
     creates => $creates,
-    require => Package[$git::params::package],
+    require => Package[$git::git_package],
     timeout => 600,
   }
 
@@ -74,7 +73,7 @@ define git::repo(
     exec {"git_${name}_pull":
       user    => $owner,
       cwd     => $path,
-      command => "${git::params::bin} reset --hard HEAD && ${git::params::bin} pull origin ${branch}",
+      command => "${git::bin} reset --hard HEAD && ${git::bin} pull origin ${branch}",
       require => Exec["git_repo_${name}"],
     }
   }
@@ -85,16 +84,16 @@ define git::repo(
     exec {"git_${name}_co_tag":
       user    => $owner,
       cwd     => $path,
-      command => "${git::params::bin} checkout ${git_tag}",
-      unless  => "${git::params::bin} describe --tag|/bin/grep -P '${git_tag}'",
+      command => "${git::bin} checkout ${git_tag}",
+      unless  => "${git::bin} describe --tag|/bin/grep -P '${git_tag}'",
       require => Exec["git_repo_${name}"],
     }
   } elsif ! $bare {
     exec {"git_${name}_co_branch":
       user    => $owner,
       cwd     => $path,
-      command => "${git::params::bin} checkout ${branch}",
-      unless  => "${git::params::bin} branch|/bin/grep -P '\\* ${branch}'",
+      command => "${git::bin} checkout ${branch}",
+      unless  => "${git::bin} branch|/bin/grep -P '\\* ${branch}'",
       require => Exec["git_repo_${name}"],
     }
   }

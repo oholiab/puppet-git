@@ -32,8 +32,12 @@
 # Somewhat derived from https://github.com/theforeman/puppet-git
 class git(
   $gui = false,
-  $svn = true
-){
+  $svn = false,
+  $svn_package = $git::params::svn_package,
+  $gui_package = $git::params::gui_package,
+  $bin = $git::params::bin,
+  $git_package = $git::params::git_package,
+) inherits git::params {
   case $::operatingsystem  {
     RedHat,CentOS,Ubuntu, Debian,Amazon:{
       class{'git::install':
@@ -42,7 +46,7 @@ class git(
       }
     }
     default:{
-      warning("git is not configured for $::operatingsystem on $::fqdn")
+      warning("git is not configured for ${::operatingsystem} on ${::fqdn}")
     }
   }
 }
