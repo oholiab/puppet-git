@@ -39,7 +39,7 @@ class git(
   $git_package = $git::params::git_package,
 ) inherits git::params {
   case $::operatingsystem  {
-    RedHat,CentOS,Ubuntu, Debian,Amazon:{
+    'RedHat', 'CentOS', 'Ubuntu', 'Debian', 'Amazon':{
       class{'git::install':
         gui   => $gui,
         svn   => $svn,
